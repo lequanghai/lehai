@@ -1,4 +1,6 @@
-module.exports = { createUser : function (req, res, next) {
+
+const { ObjectId } = require('mongodb');
+const createUser = (req, res, next) => {
     if (!req.body.username) {
         return next(new Error('require_username'));
     }
@@ -6,29 +8,34 @@ module.exports = { createUser : function (req, res, next) {
         return next(new Error('require_password'));
     }
     return next();
-    },
-    updateUser : (req, res, next) => {
-    if (isNaN(parseInt(req.params.id))) {
-        return next (new Error('require_id_is_number'));
+    };
+const  updateUser = (req, res, next) => {
+    if (ObjectId.isValid(req.params.id) !== true) {
+        return next (new Error('require_id_is_object_id'));
     }
     if (!req.body){
         return next (new Error('require_data_update'));
     }
     return next();
-    },
+};
+
     
-    getUser : (req, res, next) => {
-    if (isNaN(parseInt(req.params.id))) {
-        return next (new Error('require_id_is_number'));
+const  getOneUser = (req, res, next) => {
+    if (ObjectId.isValid(req.params.id) !== true) {
+        return next (new Error('require_id_is_object_id'));
     }
     return next();
-    },
+    };
     
-    deleteUser : (req, res, next) => {
-    if (isNaN(parseInt(req.params.id))) {
-        return next (new Error('require_id_is_number'));
+ const  deleteUser = (req, res, next) => {
+    if (ObjectId.isValid(req.params.id) !== true) {
+        return next (new Error('require_id_is_object_id'));
     }
-    return next();
-    }
+    return next();}
     
-}
+module.exports = {
+    createUser: createUser,
+    updateUser: updateUser,
+    getOneUser: getOneUser,
+    deleteUser: deleteUser
+};
