@@ -12,22 +12,19 @@ const deleteUser = async (req, res, next) => { // API delete one user
 
         if (!user) {
             return next(new Error('USER_NOT_FOUND'));
-        } 
-			 req.db.collection('users').remove({
-				_id: ObjectId(userId)
-			});
-        return res.json({
-            message: 'Delete _id ' + userId + ' successfully!'
-        });
+		} 
+		req.db.collection('users').remove({
+		_id: ObjectId(userId)
+		});
+		return res.json({
+			message: 'Delete _id ' + userId + ' successfully!'
+		});
 		
 			
-		} catch(e) {
-			return res.status(400).json({
-				message: 'Something went wrong',
-				error: e
-			});
-		}
-	};
+	} catch(e) {
+		return next(e);
+	}
+};
 const createUser = async (req, res, next) => { // API create new user
 	try {
 		const body = req.body;
@@ -38,7 +35,7 @@ const createUser = async (req, res, next) => { // API create new user
 			password: password
 		};
 		const db = req.db;
-		let collection = db.collection('users');
+		const collection = db.collection('users');
 
 		user = await collection.findOne({ username })
 			if (user) {
@@ -46,10 +43,10 @@ const createUser = async (req, res, next) => { // API create new user
 			}
 			result = await collection.insertOne(newUser)
 				//console.log(result);
-				return res.status(201).json({
-					data:result.ops[0]
-				});
-	``
+			return res.status(201).json({
+				data:result.ops[0]
+			});
+``
 	} catch(e) {
 		return res.status(400).json({
 			message: 'Something went wrong',
@@ -81,11 +78,8 @@ const updateUser = async (req, res, next) => {
 			});
 		
 	} catch (e) {
-		
-		return res.status(400).json({
-			message: 'Something went wrong',
-			error: e
-		});
+		console.log(e);
+		return next(e);
 	}
 };
 
@@ -98,11 +92,7 @@ const getUser = async (req, res, next) => { // API get list users
         });
 
     } catch(e) {
-        console.error(e);
-		return res.status(400).json({
-			message: 'Something went wrong',
-			error: e
-		});
+        return next(e);
     }
 
 };
@@ -124,10 +114,7 @@ const getOneUser = async (req, res, next) => {
         });
 
 	} catch (e) {
-		return res.status(400).json({
-			message: 'Something went wrong',
-			error: e
-		});
+		return next(e);
 	}
 };
 

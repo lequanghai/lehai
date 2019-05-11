@@ -4,9 +4,11 @@ const bodyParser = require('body-parser');
 const port = 3000;
 const fs = require('fs');
 const path = require('path');
-const userController = require('./controlers/user');
-const userMiddleawe = require('./middlewares/user-middleware')
-app.use(bodyParser.json({ type: 'application/json' }))
+//const userController = require('./controlers/user');
+//const userMiddleawe = require('./middlewares/user-middleware')
+app.use(bodyParser.json({ type: 'application/json' }));
+const userRouter = require('./apis/user');
+const productRouter = require('./apis/product');
 app.use(bodyParser.urlencoded({ extended: false }))
 
 
@@ -34,15 +36,20 @@ MongoClient.connect(url, function(err, client) {
 		req.db = db;
 		next();
 	});
-  	app.get('/api/v1/users', userController.getUser)
-	app.post('/api/v1/users', userMiddleawe.createUser , userController.createUser)
-	app.delete('/api/v1/users/:id', userMiddleawe.deleteUser, userController.deleteUser)
-	app.put('/api/v1/users/:id', userMiddleawe.updateUser, userController.updateUser)
-	app.get('/api/v1/users/:id', userMiddleawe.getOneUser, userController.getOneUser)
-	app.use((e, req, res, next) => {
-	return res.status(400).json({
-		//isSuccess: false,
-		message: e.message || 'Have error',
+	  userRouter.load(app);
+	  productRouter.load(app);
+	app.use((err, req, res, next) => {
+		if(Array.isArray(err.errors)) {
+			const message = err.errors.map(function(item){
+				return item.message;
+			});
+			return res.status(400).json({
+				errors: message
+			});
+		}
+		return res.status(400).json({
+			//isSuccess: false,
+			message: err.message || 'Have error',
 	});
 });
 

@@ -9,6 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@hapi/joi": "^15.0.1",
+    "express-validation": "^1.0.2",
+    "express-validator": "^5.3.1",
+    "joi-objectid": "^2.0.0",
     "mongodb": "^3.2.3"
   }
 }
