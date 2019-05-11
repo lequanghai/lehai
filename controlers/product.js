@@ -39,8 +39,8 @@ exports.getAll = async (req, res, next) => {
 exports.update = async (req, res, next) => {
     try {
         const productId = req.params.id;
-		const body = req.body;
-		const newProduct = {$set: body};
+        const body = req.body;
+        const newProduct = {$set: body};
         const product = await req.db.collection('products').findOne({
         _id:  ObjectId(productId)
         });
