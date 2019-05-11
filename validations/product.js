@@ -10,10 +10,10 @@ const createProduct = () => {
             colors: Joi.array().items(Joi.string().required()),
             price: Joi.number().integer().min(0).max(10000),
             isAvailable: Joi.boolean().invalid(0),
-            // payload: Joi.object({
-            //     expiredAt: Joi.date,
-		    //     releasedAt: Joi.date
-            // }),
+            payload: Joi.object().keys({
+                expiredAt: Joi.date().iso().required(),
+		        releasedAt: Joi.date().iso().required(),
+            }).with('expiredAt', 'releasedAt'),
        }
    }
     
@@ -30,8 +30,8 @@ const  updateProduct = () => {
             price: Joi.number().integer().min(0).max(10000),
             isAvailable: Joi.boolean().invalid(0),
             payload: Joi.object().keys({
-                expiredAt: Joi.date().iso(),
-		        releasedAt: Joi.date().iso(),
+                expiredAt: Joi.date().iso().required(),
+		        releasedAt: Joi.date().iso().required(),
             }).with('expiredAt', 'releasedAt'),
        }
        
