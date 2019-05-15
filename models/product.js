@@ -10,12 +10,13 @@ const Productschema = new mongoose.Schema({
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: 'User'
     },
     price: {
         type: Number,
-        min: 1000,
-        max: 100000000,
+        min: 0,
+        max: 10000,
         required: true
     },
     color: [{
@@ -35,11 +36,7 @@ const Productschema = new mongoose.Schema({
         expiredAt: {
             type: Date,
            required: true
-        },
-        
-    },
-    users:{
-       
+        }, 
     }
 
 })

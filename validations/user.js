@@ -44,8 +44,8 @@ const  deleteUser = () => {
     
     
 module.exports = {
-    createUser: createUser,
-    updateUser: updateUser,
-    getOneUser: getOneUser,
-    deleteUser: deleteUser
+    createUser,
+    updateUser,
+    getOneUser,
+    deleteUser
 };
