@@ -1,12 +1,10 @@
 
-const { ObjectId } = require('mongodb');
 const Joi = require('joi');
-Joi.objectId = require('joi-objectid')(Joi);
 const createUser = () => {
    return {
        body:{
-            username: Joi.string().min(6).max(30).required(),
-            password: Joi.string().min(6).max(30).required()
+            username: Joi.string().min(3).max(30).required(),
+            password: Joi.string().min(3).max(30).required()
        }
    }
     
@@ -14,7 +12,7 @@ const createUser = () => {
 const  updateUser = () => {
     return {
         query: {
-            id: Joi.objectId()
+            _id : Joi.string().regex(/^[0-9a-fA-F]{24}$/)
         },
         body: {
             username: Joi.string().min(6).max(30).required(),
@@ -28,7 +26,7 @@ const  updateUser = () => {
 const getOneUser = ()  => {
     return {
         query:{
-            id: Joi.objectId()
+            _id : Joi.string().regex(/^[0-9a-fA-F]{24}$/)
         }
         // access_token: [Joi.string(), Joi.number()],
         // birthyear: Joi.number().integer().min(1900).max(2013),
@@ -39,7 +37,7 @@ const getOneUser = ()  => {
 const  deleteUser = () => {
    return {
        query:{
-           id: Joi.objectId()
+        _id : Joi.string().regex(/^[0-9a-fA-F]{24}$/)
        }
     }
 }
