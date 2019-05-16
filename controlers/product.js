@@ -35,7 +35,8 @@ exports.getAll = async (req, res, next) => {
     try {
         const products = await Product.find().populate([
             {
-                path: 'userId'
+                path: 'userId',
+                select: '-password'
             }
         ]);
 

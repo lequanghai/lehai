@@ -30,7 +30,6 @@ const Productschema = new mongoose.Schema({
     payload: {
         releasedAt: {
             type: Date,
-            min: ('now'),
             required: true
         },
         expiredAt: {

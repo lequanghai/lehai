@@ -13,7 +13,7 @@ const schema = Joi.object().keys({
     // email: Joi.string().email({ minDomainSegments: 2 })
 })//.with('username', 'birthyear').without('password', 'access_token');
 exports.load = function(app) {
-    app.get('/api/v1/users/',middleware.Authentication, userController.getUser);
+    app.get('/api/v1/users/',middleware.Authentication, userController.getListUser);
     app.post('/api/v1/login', userController.login)
 	app.post('/api/v1/users/', validation(userValidation.createUser()), userController.createUser)
 	app.delete('/api/v1/users/:id',[ middleware.Authentication, validation(userValidation.deleteUser())], userController.deleteUser)

@@ -1,4 +1,3 @@
-
 const Joi = require('joi');
 const createUser = () => {
    return {
@@ -11,13 +10,13 @@ const createUser = () => {
 };
 const  updateUser = () => {
     return {
-        query: {
-            _id : Joi.string().regex(/^[0-9a-fA-F]{24}$/)
-        },
-        body: {
-            username: Joi.string().min(6).max(30).required(),
-            password: Joi.string().min(6).max(30).required()
-        },
+        // query: {
+        //     _id : Joi.string().regex(/^[0-9a-fA-F]{24}$/)
+        // },
+        // body: {
+        //     username: Joi.string().min(6).max(30).required(),
+        //     password: Joi.string().min(6).max(30).required()
+        // },
        
     }
 };

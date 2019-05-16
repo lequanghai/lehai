@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const deleteUser = async (req, res, next) => { // API delete one user
 	try {
         const userId = req.params.id;
-		const user = await User.findByIdAndDelete(userId);
+		const user = await User.findByIdAndDelete(userId).lean();
 		if (!user) {
 			return next(new Error('USER_NOT_FOUND'));
 		}
@@ -28,7 +28,7 @@ const createUser = async (req, res, next) => { // API create new user
 			username,
 			password: hashpassword
 		})
-		const _user = await User.findOne({username: req.body.username})
+		const _user = await User.findOne({username: req.body.username}).lean()
 		if (_user) {
 			return next(new Error('user ton tai'))
 		}
@@ -47,17 +47,16 @@ const login = async (req, res, next) => {
 	try {  
 		const username = req.body.username;
 		const password = req.body.password;
-		 console.log(username,password);
 		const user = await User.findOne({username});
 		if (!user) {
 			return next(new Error('not user'))
 		}
-		console.log(user.password);
 		const comparepassword = Bcrypt.compareSync(password, user.password)
 		if (!comparepassword) {
 			return next(new Error('ere'));
 		}
-		const token = jwt.sign({username}, 'shhhhh')
+		const expiresIn = 600;
+		const token = jwt.sign({username}, 'shhhhh', {expiresIn})
 		return res.status(201).json({
 			message : 'login user succesful',
 			access_token: token
@@ -71,14 +70,26 @@ const updateUser = async (req, res, next) => {
 
 	try {
 		const _id = req.params.id;
-		let newUser =  {$set: req.body};
-		const user = await User.findByIdAndUpdate(_id,newUser)
+		const { username, password} = req.body;
+		const salt = Bcrypt.genSaltSync(2)
+		const hashpassword = Bcrypt.hashSync(password, salt)
+		const newUser = {username, password: hashpassword}
+
+        Object.keys(newUser).forEach( function(key) {
+            if (newUser[key] === undefined) {
+                delete newUser[key];
+            }
+        });
+        const updateInfo = {$set: newUser};
+		//newUser.password = hashpassword;
+		const user = await User.findByIdAndUpdate(_id,updateInfo).lean();
 		if (!user) {
             return next(new Error('USER_NOT_FOUND'));
         }
 		return res.status(200).json({
 			message : 'update user succesful',
-			user
+			olduser: user,
+			data: newUser
 		});
 		
 	} catch (e) {
@@ -86,14 +97,9 @@ const updateUser = async (req, res, next) => {
 	}
 };
 
-const getUser = async (req, res, next) => { // API get list users
+const getListUser = async (req, res, next) => { // API get list users
 	try {
-		// const token = req.query.token || req.body.token;
-		// if (!token) {
-		// 	return next(new Error('wewe'));
-		// }
-		// jwt.verify(token, 'shhhhh');
-        const users = await User.find();
+        const users = await User.find().lean().select('-password')
         return res.json({
             message: 'List users',
             data: users
@@ -108,7 +114,7 @@ const getUser = async (req, res, next) => { // API get list users
 const getOneUser = async (req, res, next) => {
 	try {
 		const userId = req.params.id;
-        const user = await User.findOne({_id: userId});
+        const user = await User.findById(userId).lean().select('-password');
         if (!user) {
             return next(new Error('USER_NOT_FOUND'));
         }
@@ -128,7 +134,7 @@ module.exports = {
 	createUser,
 	updateUser,
 	getOneUser,
-	getUser,
+	getListUser,
 	login
 	
 }
