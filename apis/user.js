@@ -2,7 +2,7 @@
 const userValidation = require('../validations/user');
 const userController = require('../controlers/user');
 const validation = require('express-validation');
-const middleware = require('../middlewares/Authentication')
+const { verifyToken } = require('../middlewares/authentication')
 const Joi = require('@hapi/joi');
 
 const schema = Joi.object().keys({
@@ -13,10 +13,10 @@ const schema = Joi.object().keys({
     // email: Joi.string().email({ minDomainSegments: 2 })
 })//.with('username', 'birthyear').without('password', 'access_token');
 exports.load = function(app) {
-    app.get('/api/v1/users/',middleware.Authentication, userController.getListUser);
+    app.get('/api/v1/users/', [ verifyToken ], userController.getListUser);
     app.post('/api/v1/login', userController.login)
 	app.post('/api/v1/users/', validation(userValidation.createUser()), userController.createUser)
-	app.delete('/api/v1/users/:id',[ middleware.Authentication, validation(userValidation.deleteUser())], userController.deleteUser)
-	app.put('/api/v1/users/:id', [middleware.Authentication, validation(userValidation.updateUser())], userController.updateUser)
-	app.get('/api/v1/users/:id', [middleware.Authentication, validation(userValidation.getOneUser())], userController.getOneUser)
+	app.delete('/api/v1/users/:id',[ verifyToken, validation(userValidation.deleteUser())], userController.deleteUser)
+	app.put('/api/v1/users/:id', [ verifyToken, validation(userValidation.updateUser())], userController.updateUser)
+	app.get('/api/v1/users/:id', [ verifyToken, validation(userValidation.getOneUser())], userController.getOneUser)
 }

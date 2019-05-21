@@ -8,5 +8,5 @@ exports.load = function(app) {
     app.get('/api/v1/products', productController.getAll);
     app.put('/api/v1/products/:id', validation(productValidation.updateProduct()), productController.update);
     app.delete('/api/v1/products/:id', validation(productValidation.deleteProduct()), productController.delete);
-    app.get('/api/v1/products/:id', validation(productValidation.getOneProduct()), productController.getProduce);
+    app.get('/api/v1/products/:id', validation(productValidation.getOneProduct()), productController.getOneProduct);
 }

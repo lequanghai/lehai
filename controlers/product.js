@@ -1,34 +1,35 @@
 const Product = require('../models/product');
 const User = require('../models/user')
 exports.create = async (req, res, next) => {
-    try {
-        const {
-            name,
-            userId,
-            price,
-            color,
-            isAvailable,
-            payload
-        } = req.body;
-        const existedUser = await User.findById(userId).lean();
-        if (!existedUser) {
-            return next(new Error('USER_NOT_FOUND'));
-        }
-        const existedProduct = await Product.findOne({name}).lean();
-        if (existedProduct) {
-            return next(new Error('Product_already_existed'))
-        }
-        const product = new Product ({
-            ...req.body
-        })
-        const savedProduct = await product.save();
-        return res.status(200).json({
-            message: 'Create new product successfully',
-            savedProduct
-        });
-    } catch (e) {
-        return next(e);
-    }
+    // try {
+    //     const {
+    //         name,
+    //         userId,
+    //         price,
+    //         color,
+    //         isAvailable,
+    //         payload
+    //     } ;
+    //     //const body= req.body;
+    //     const existedUser = await User.findById(userId).lean();
+    //     if (!existedUser) {
+    //         return next(new Error('USER_NOT_FOUND'));
+    //     }
+    //     const existedProduct = await Product.findOne({name}).lean();
+    //     if (existedProduct) {
+    //         return next(new Error('Product already existed'))
+    //     }
+    //     const product = new Product ({
+    //         ...req.body
+    //     })
+    //     const savedProduct = await product.save();
+    //     return res.status(200).json({
+    //         message: 'Create new product successfully',
+    //         savedProduct
+    //     });
+    // } catch (e) {
+    //     return next(e);
+    // }
 };
 
 exports.getAll = async (req, res, next) => {
@@ -38,7 +39,7 @@ exports.getAll = async (req, res, next) => {
                 path: 'userId',
                 select: '-password'
             }
-        ]);
+        ]).sort();
 
         // for (const product of products) {
         //     const userId = product.userId
@@ -114,16 +115,20 @@ exports.update = async (req, res, next) => {
         return next(e);
     }
 };
-exports.getProduce = async (req, res, next) => {
+exports.getOneProduct = async (req, res, next) => {
     try {
         const productId = req.params.id;
-        const product = await Product.findById(productId);
-        if (!product) {
-            return next(new Error('PRODUCT_NOT_FOUND'));
-        }
-        const id = product.userId;
-        const user = await User.findById(id);
-        product._doc.users = user;
+        const product = await Product.findById(productId).lean().populate({
+            path: 'userId',
+            select: '-password'
+
+        });
+        // if (!product) {
+        //     return next(new Error('PRODUCT NOT FOUND'));
+        // }
+        // const id = product.userId;
+        // const user = await User.findById(id);
+        // product._doc.users = user;
         return res.status(200).json({
             message : 'product ',
             data: product
