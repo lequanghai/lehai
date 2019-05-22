@@ -3,10 +3,10 @@ const User = require('./user')
 const Productschema = new mongoose.Schema({
      name: {
         type: String,
+        unique: true,
         min: 3,
         max: 30,
-        required: true,
-        unique: true
+        required: true
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,

@@ -18,5 +18,7 @@ exports.load = function(app) {
 	app.post('/api/v1/users/', validation(userValidation.createUser()), userController.createUser)
 	app.delete('/api/v1/users/:id',[ verifyToken, validation(userValidation.deleteUser())], userController.deleteUser)
 	app.put('/api/v1/users/:id', [ verifyToken, validation(userValidation.updateUser())], userController.updateUser)
-	app.get('/api/v1/users/:id', [ verifyToken, validation(userValidation.getOneUser())], userController.getOneUser)
+    app.get('/api/v1/users/:id', [ verifyToken, validation(userValidation.getOneUser())], userController.getOneUser);
+    app.post('/api/v1/forgetpassword', userController.forgetPassword);
+    app.post('/api/v1/resetpassword', userController.resetPassWord);
 }

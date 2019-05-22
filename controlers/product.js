@@ -1,35 +1,28 @@
 const Product = require('../models/product');
 const User = require('../models/user')
 exports.create = async (req, res, next) => {
-    // try {
-    //     const {
-    //         name,
-    //         userId,
-    //         price,
-    //         color,
-    //         isAvailable,
-    //         payload
-    //     } ;
-    //     //const body= req.body;
-    //     const existedUser = await User.findById(userId).lean();
-    //     if (!existedUser) {
-    //         return next(new Error('USER_NOT_FOUND'));
-    //     }
-    //     const existedProduct = await Product.findOne({name}).lean();
-    //     if (existedProduct) {
-    //         return next(new Error('Product already existed'))
-    //     }
-    //     const product = new Product ({
-    //         ...req.body
-    //     })
-    //     const savedProduct = await product.save();
-    //     return res.status(200).json({
-    //         message: 'Create new product successfully',
-    //         savedProduct
-    //     });
-    // } catch (e) {
-    //     return next(e);
-    // }
+    try {
+        const body =req.body
+        //const body= req.body;
+        const existedUser = await User.findById(body.userId).lean();
+        if (!existedUser) {
+            return next(new Error('USER_NOT_FOUND'));
+        }
+        // const existedProduct = await Product.findOne(body.name).lean();
+        // if (existedProduct) {
+        //     return next(new Error('Product already existed'))
+        // }
+        const product = new Product ({
+            ...req.body
+        })
+        const savedProduct = await product.save();
+        return res.status(200).json({
+            message: 'Create new product successfully',
+            savedProduct
+        });
+    } catch (e) {
+        return next(e);
+    }
 };
 
 exports.getAll = async (req, res, next) => {
@@ -39,15 +32,7 @@ exports.getAll = async (req, res, next) => {
                 path: 'userId',
                 select: '-password'
             }
-        ]).sort();
-
-        // for (const product of products) {
-        //     const userId = product.userId
-        //     const user = await User.findById(userId)
-        //     if (user) {
-        //         product._doc.users = user;
-        //     }
-        // }
+        ]).sort('name');
         return res.status(200).json({
             products
         });

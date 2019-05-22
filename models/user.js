@@ -6,6 +6,7 @@ const Userschema = new mongoose.Schema({
         min: 3,
         max: 30,
         required: true,
+       // unique:true
     },
     password: {
         type: String,
@@ -13,7 +14,21 @@ const Userschema = new mongoose.Schema({
         max: 30,
         required: true,
     },
-})
+    email: {
+        type: String,
+        required: [true, 'Email is required field'],
+        maxlength: [30, 'Email is too long!'],
+        //unique: true
+      },
+    codeResetPassword: {
+        type: String,
+        default: null
+      },
+      genCodeAt: {
+        type: Date,
+        default: null
+      },
+ })
 
 const User = mongoose.model('User', Userschema)
 
