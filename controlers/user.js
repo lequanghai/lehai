@@ -32,10 +32,10 @@ const createUser = async (req, res, next) => { // API create new user
 			password: hashpassword,
 			email
 		});
-		const user = await User.findOne({ username: req.body.username })
-		if (user) {
-			return next(new Error('user ton tai'))
-		}
+		// const user = await User.findOne({ username: req.body.username })
+		// if (user) {
+		// 	return next(new Error('user ton tai'))
+		// }
 		const data = await newUser.save();
 		delete data._doc.password;
 		return res.status(201).json({
@@ -137,9 +137,6 @@ const forgetPassword = async (req, res, next) => {
 		user.codeResetPassword = randomCode;
 		user.genCodeAt = new Date;
 		await user.save();
-		const data = user
-		console.log(user)
-		await User.updateOne({ email },data);
 		await sendMail(email, randomCode);
 		return res.status(200).json({
             message: "create user  successfully",
@@ -151,7 +148,7 @@ const forgetPassword = async (req, res, next) => {
 };
 const resetPassWord = async (req, res, next) =>{
 	try {
-		const { email, code, newPassword, confirdPassword } = req.body;
+		const { email, code, newPassword, confirdmPassword } = req.body;
 		const user = await User.findOne().where({
 			codeResetPassword: code,
 			email: email
@@ -159,10 +156,10 @@ const resetPassWord = async (req, res, next) =>{
 		if (!user) {
 			return next(new Error('CANNOT_RESET_PASSWORD'));
 		}
-		if (new Date() - user.genCodeAt > 1000*60*50) {
+		if (new Date() - user.genCodeAt > 1000*60*30) {
             return next(new Error('CODE_EXPIRED'));       
 		}
-		if (newPassword !== confirdPassword) {
+		if (newPassword !== confirmPassword) {
 			return next(new Error('PASSWORD NOT THE SAME!'));
 		  }
 	
@@ -172,7 +169,6 @@ const resetPassWord = async (req, res, next) =>{
 		user.codeResetPassword = null;
 		user.genCodeAt = null;
 		user.save();
-		//await User.updateOne({ email },user);
 		console.log(user);
 		return res.status(200).json({
             message : 'change password successful',

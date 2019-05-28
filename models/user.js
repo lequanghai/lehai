@@ -6,7 +6,7 @@ const Userschema = new mongoose.Schema({
         min: 3,
         max: 30,
         required: true,
-       // unique:true
+        unique:true
     },
     password: {
         type: String,
@@ -18,7 +18,7 @@ const Userschema = new mongoose.Schema({
         type: String,
         required: [true, 'Email is required field'],
         maxlength: [30, 'Email is too long!'],
-        //unique: true
+        unique: true
       },
     codeResetPassword: {
         type: String,

@@ -1,10 +1,11 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const port = 3000;
+const port = 3001;
 app.use(bodyParser.json({ type: 'application/json' }));
 const userRouter = require('./apis/user');
 const productRouter = require('./apis/product');
+const groupRouter = require('./apis/group')
 app.use(bodyParser.urlencoded({ extended: false }))
 
 const models = require('./models');
@@ -19,6 +20,7 @@ models
  
 userRouter.load(app);
 productRouter.load(app);
+groupRouter.load(app);
 app.use((err, req, res, next) => {
 		if(Array.isArray(err.errors)) {
 			const message = err.errors.map(function(item){

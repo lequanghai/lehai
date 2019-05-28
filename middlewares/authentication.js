@@ -15,6 +15,7 @@ exports.verifyToken = function(req, res, next) {
         token = accessToken;
         const verifyData = verify(token);
         req.user = verifyData;
+       // console.log(req.user)
         return next();
     } catch (e) {
         return next(e);
