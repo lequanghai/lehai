@@ -6,10 +6,12 @@ const sendMail = require('../nodemailer/sendmail')
 const deleteUser = async (req, res, next) => { // API delete one user
 	try {
         const userId = req.params.id;
-		const user = await User.findByIdAndDelete(userId).lean();
+		const user = await User.findById(userId).where({deleteAt: null});
 		if (!user) {
 			return next(new Error('USER_NOT_FOUND'));
 		}
+		user.deleteAt = new Date();
+		user.save();
 		return res.json({
 			message: 'Delete _id ' + userId + ' successfully!'
 		});
@@ -97,7 +99,7 @@ const updateUser = async (req, res, next) => {
 
 const getListUser = async (req, res, next) => { // API get list users
 	try {
-        const users = await User.find().lean().select('-password')
+        const users = await User.find().lean().select('-password').where({deleteAt: null});
         return res.json({
             message: 'List users',
             data: users
@@ -111,7 +113,8 @@ const getListUser = async (req, res, next) => { // API get list users
 const getOneUser = async (req, res, next) => {
 	try {
 		const userId = req.params.id;
-        const user = await User.findById(userId).lean().select('-password');
+		//const user = await User.findById(userId).lean().select('-password').where({deleteAt: null});
+		const user = await User.findById(userId).lean().select('-password').where({deleteAt: null});
         if (!user) {
             return next(new Error('USER NOT FOUND'));
         }

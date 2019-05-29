@@ -31,3 +31,7 @@ group: ref Group -> Sent to which group.
 createdAt,
 updatedAt,
 deletedAt
+
+
+
+group.members.splice(group.members.indexOf(member), 1);
