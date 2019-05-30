@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt-nodejs')
 const jwt = require('jsonwebtoken');
 const { sign } = require('../helpers/jwt-helper');
 const sendMail = require('../nodemailer/sendmail')
+const { userRepository } = require('../repositories')
 const deleteUser = async (req, res, next) => { // API delete one user
 	try {
         const userId = req.params.id;
@@ -99,7 +100,13 @@ const updateUser = async (req, res, next) => {
 
 const getListUser = async (req, res, next) => { // API get list users
 	try {
-        const users = await User.find().lean().select('-password').where({deleteAt: null});
+		// const opstions = {
+		// 	limit: 10,
+		// 	page:1,
+		// 	select: 'username',
+		// 	lean: true
+		// }
+        const users = await userRepository.getAll();
         return res.json({
             message: 'List users',
             data: users
