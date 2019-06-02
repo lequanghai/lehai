@@ -23,7 +23,11 @@ const Groupchema = new mongoose.Schema({
     },
     name:{
         type: String,
-        required: true
+        required: true,
+    },
+    deleteAt: {
+        type: Date,
+        default: null
     }
  }, { timestamps: true })
 

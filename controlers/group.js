@@ -1,10 +1,15 @@
 const Group = require('../models/group')
 const User = require('../models/user')
+const { userRepository, groupRepository } = require('../repositories')
 exports.create = async (req, res, next) => {
     try {
         const loginUserId = req.user._id;
+        console.log(loginUserId);
         const { members } = req.body;
-        const ismember = await User.find(). where({ _id: { $in: members }}).select('_id')
+        const options = {
+            where: { _id: { $in: members }}
+        }
+        const ismember = await userRepository.getAll(options)
         console.log(ismember)
         if (ismember.length < members.length) {
             return next(new Error('user not found'));
@@ -34,39 +39,47 @@ exports.create = async (req, res, next) => {
 };
 exports.getAllGroup = async (req, res, next) => {
    try {
-    group = await Group.find().populate([
-        {
-            path: 'author',
-            select: 'username'
-        },
-        {
-            path: 'members',
-            select: 'username'
+        const options = {
+            populate:[
+                {
+                    path: 'author',
+                    select: 'username'
+                },
+                {
+                    path: 'members',
+                    select: 'username'
+                }
+            ],
+            select: '_id'
         }
-    ]);
-    if(!group.length) {
-        return next(new Error('Group not found!'));
-    }
-    return res.status(200).json({
-        group
-    });
+        const group = await groupRepository.getAll(options);
+        if(!group.length) {
+            return next(new Error('Group not found!'));
+        }
+        return res.status(200).json({
+            group
+        });
    } catch (e) {
        return next(e);
    }
 };
 exports.getOneGroup = async (req, res, next) => {
     try {
-        const groupId = req.params.id;
-        const group = await Group.findById(groupId).populate([
-            {
-                path: 'author',
-                select: 'username'
-            },
-            {
-                path: 'members',
-                select: 'username'
-            }
-        ]);
+        const options = {
+            where: { _id: req.params.id },
+            populate:[
+                {
+                    path: 'author',
+                    select: 'username'
+                },
+                {
+                    path: 'members',
+                    select: 'username'
+                }
+            ],
+            select: '_id'
+        }
+        const group = await groupRepository.getOne(options);
         if (!group) {
             return next(new Error('Group not found!'));
         }
@@ -81,14 +94,23 @@ exports.getOneGroup = async (req, res, next) => {
 };
 exports.deleteGroup = async (req, res, next) => {
     try {
-        groupId = req.params.id;
-        group = await Group.findByIdAndDelete({_id: groupId});
-        console.log(group);
+        // groupId = req.params.id;
+        // group = await Group.findByIdAndDelete({_id: groupId});
+        // console.log(group);
+        const optionsGroup = {
+            where: {
+              _id: req.params.id,
+              author: req.user._id
+            },
+            data: { $set: { deleteAt: new Date() }},
+          };
+        const group = await groupRepository.findOneAndUpdate(optionsGroup);
+        console.log(group)
         if(!group) {
             return next(new Error('Group not found'));
         }
         return res.status(200).json({
-            message: 'delete group '+ groupId + ' successfully'
+            message: 'delete group  successfully'
         });
     } catch (e) {
         return next(e);
@@ -102,13 +124,20 @@ exports.updateGroup = async (req, res, next) => {
         //   if (ismember.length < members.length) {
         //       return next(new Error('mebers not user '));
         //   }
-        const  _id = req.params.id 
-        const group = await Group.findOneAndUpdate({_id: _id}, { $set: req.body});
+        const options = {
+            where: {
+                _id: req.params.id,
+                author: req.user.id
+            },
+            data: { $set: req.body },
+            lean: true
+        }
+        const group = await groupRepository.findOneAndUpdate(options);
         if (!group) {
         return next(new Error('Group not found'));
         }
         return res.status(200).json({
-            message: 'update Group '+ _id + ' successfully'
+            message: 'update Group successfully'
         });
     } catch (e) {
         return next(e);

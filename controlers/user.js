@@ -6,15 +6,19 @@ const sendMail = require('../nodemailer/sendmail')
 const { userRepository } = require('../repositories')
 const deleteUser = async (req, res, next) => { // API delete one user
 	try {
-        const userId = req.params.id;
-		const user = await User.findById(userId).where({deleteAt: null});
-		if (!user) {
-			return next(new Error('USER_NOT_FOUND'));
+		const options = {
+			where: {
+				_id: req.params.id
+			},
+			data: { $set: { deleteAt: new Date() }},
+			lean: true
 		}
-		user.deleteAt = new Date();
-		user.save();
+		const user = await userRepository.findOneAndUpdate(options)
+		if (!user) {
+			return next(new Error('user not found'));
+		}
 		return res.json({
-			message: 'Delete _id ' + userId + ' successfully!'
+			message: 'Delete successfully!'
 		});
 		
 	} catch(e) {
@@ -23,27 +27,19 @@ const deleteUser = async (req, res, next) => { // API delete one user
 };
 const createUser = async (req, res, next) => { // API create new user
 	try {
-		const  {
-			username,
-			password,
-			email
-		} = req.body
 		const salt = bcrypt.genSaltSync(2)
-		const hashpassword = bcrypt.hashSync(password, salt)
-		const newUser = new User({
-			username,
+		const hashpassword = bcrypt.hashSync(req.body.password, salt)
+		const data = {
+			...req.body,
 			password: hashpassword,
-			email
-		});
-		// const user = await User.findOne({ username: req.body.username })
-		// if (user) {
-		// 	return next(new Error('user ton tai'))
-		// }
-		const data = await newUser.save();
-		delete data._doc.password;
-		return res.status(201).json({
+		};
+		const user = userRepository.create(data);
+		//console.log(user);
+		await user.save();
+		delete user._doc.password;
+		return res.status(200).json({
 			message : 'add user succesful',
-			data: data
+			data: user
 		});
 	} catch(e) {
 		return next(e);
@@ -52,9 +48,12 @@ const createUser = async (req, res, next) => { // API create new user
 
 const login = async (req, res, next) => {
 	try {  
-		const username = req.body.username;
-		const password = req.body.password;
-		const user = await User.findOne({username});
+		const { username, password } = req.body;
+		const options = {
+			where: { username },
+			lean: true
+		}
+		const user = await userRepository.getOne(options);
 		if (!user) {
 			return next(new Error('not user'))
 		}
@@ -75,22 +74,23 @@ const login = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
 
 	try {
-		const _id = req.params.id;
 		const body = req.body;
 		if(body.password) {
 			const salt = bcrypt.genSaltSync(2);
 			body.password = bcrypt.hashSync(password, salt);
 		}
-        const updateInfo = { $set: body };
+        const options = { 
+			where: { _id: req.params.id },
+			data: {$set: body },
+			lean: true
+		}
 		//newUser.password = hashpassword;
-		const user = await User.findByIdAndUpdate(_id,updateInfo).lean().select('-password');
+		const user = await User.findByIdAndUpdate(options);
 		if (!user) {
             return next(new Error('USER NOT FOUND'));
 		}
 		return res.status(200).json({
-			message : 'update user succesful',
-			olduser: user,
-			data: updateInfo
+			message : 'update user succesful'
 		});
 		
 	} catch (e) {
@@ -100,13 +100,11 @@ const updateUser = async (req, res, next) => {
 
 const getListUser = async (req, res, next) => { // API get list users
 	try {
-		// const opstions = {
-		// 	limit: 10,
-		// 	page:1,
-		// 	select: 'username',
-		// 	lean: true
-		// }
-        const users = await userRepository.getAll();
+		const opstions = {
+			select: 'username',
+			lean: true
+		}
+        const users = await userRepository.getAll(opstions);
         return res.json({
             message: 'List users',
             data: users
@@ -119,9 +117,14 @@ const getListUser = async (req, res, next) => { // API get list users
 
 const getOneUser = async (req, res, next) => {
 	try {
-		const userId = req.params.id;
-		//const user = await User.findById(userId).lean().select('-password').where({deleteAt: null});
-		const user = await User.findById(userId).lean().select('-password').where({deleteAt: null});
+		const options = {
+			where: {
+				_id: req.params.id,
+			},
+			select: 'username',
+			lean: true
+		}
+		const user = await userRepository.getOne(options)
         if (!user) {
             return next(new Error('USER NOT FOUND'));
         }
@@ -138,8 +141,10 @@ const getOneUser = async (req, res, next) => {
 const forgetPassword = async (req, res, next) => {
 	try {
 		const { email } = req.body;
-		let user = await User.findOne({ email });
-		//console.log(user);
+		let user = await userRepository.getOne({
+			where: { email: email },
+			select: '_id'
+		  });
 		if (!user) {
 			return next(new Error('EMAIL_NOT_FOUND'));
 		}
@@ -158,7 +163,7 @@ const forgetPassword = async (req, res, next) => {
 };
 const resetPassWord = async (req, res, next) =>{
 	try {
-		const { email, code, newPassword, confirdmPassword } = req.body;
+		const { email, code, newPassword, confirmPassword } = req.body;
 		const user = await User.findOne().where({
 			codeResetPassword: code,
 			email: email
